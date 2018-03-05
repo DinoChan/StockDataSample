@@ -8,6 +8,7 @@ using ProtoBuf;
 
 namespace StcokDataSample
 {
+    [Serializable]
     [ProtoContract]
     [DataContract]
     public class StockPrice

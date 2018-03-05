@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -17,16 +18,17 @@ namespace StcokDataSample
 
 
             List<StockPrice> list = new List<StockPrice>();
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 2500; i++)
             {
-
-
-                list.Add(new StockPrice() { Id = i, PrvClosePrice = i * 10 });
+                list.Add(new StockPrice() { Id = i, PrvClosePrice = i * 10, Date = DateTime.Now.AddDays(i) });
             }
 
 
             var serializers = new List<StockPriceSerializer>();
             serializers.Add(new ProtobufStockPriceSerializer());
+            serializers.Add(new JsonStockPriceSerializer());
+            serializers.Add(new XmlStockPriceSerializer());
+            
             foreach (var serializer in serializers)
             {
                 Console.WriteLine(serializer.GetType().Name);
@@ -35,40 +37,25 @@ namespace StcokDataSample
                  {
                      stream = serializer.Serialize(list);
                  });
+               
                 CodeTimer.Time("Deserialize: ", 1, () =>
                 {
                     var newObject = serializer.Deserialize(stream);
+                    Debug.Assert(newObject[list.Count - 1].PrvClosePrice == list[newObject.Count - 1].PrvClosePrice);
                 });
+
+                Console.WriteLine("Stream Length: " + stream.Length.ToString("N2"));
                 Console.WriteLine();
                 Console.WriteLine();
                 Console.WriteLine();
-                
+
             }
 
 
-            //序列化
-            //DataContractJsonSerializer js = new DataContractJsonSerializer(typeof(List<Student>));
-            //MemoryStream msObj = new MemoryStream();
-            ////将序列化之后的Json格式数据写入流中
-            //js.WriteObject(msObj, list);
         }
     }
 
 
 
-    [DataContract]
-    public class Student
-    {
-        [DataMember]
-        public int ID { get; set; }
-
-        [DataMember]
-        public string Name { get; set; }
-
-        [DataMember]
-        public int Age { get; set; }
-
-        [DataMember]
-        public string Sex { get; set; }
-    }
+  
 }
