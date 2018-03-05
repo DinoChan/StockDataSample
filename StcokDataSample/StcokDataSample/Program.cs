@@ -13,28 +13,39 @@ namespace StcokDataSample
     {
         static void Main(string[] args)
         {
+            CodeTimer.Initialize();
 
-         
 
             List<StockPrice> list = new List<StockPrice>();
             for (int i = 0; i < 100; i++)
             {
 
 
-                list.Add(new StockPrice() { Id = i , PrvClosePrice=i*10});
+                list.Add(new StockPrice() { Id = i, PrvClosePrice = i * 10 });
             }
 
 
             var serializers = new List<StockPriceSerializer>();
-
+            serializers.Add(new ProtobufStockPriceSerializer());
             foreach (var serializer in serializers)
             {
-                var stream = serializer.Serialize(list);
-
-                var newObject = serializer.Deserialize(stream);
+                Console.WriteLine(serializer.GetType().Name);
+                Stream stream = null;
+                CodeTimer.Time("Serialize: ", 1, () =>
+                 {
+                     stream = serializer.Serialize(list);
+                 });
+                CodeTimer.Time("Deserialize: ", 1, () =>
+                {
+                    var newObject = serializer.Deserialize(stream);
+                });
+                Console.WriteLine();
+                Console.WriteLine();
+                Console.WriteLine();
+                
             }
 
-          
+
             //序列化
             //DataContractJsonSerializer js = new DataContractJsonSerializer(typeof(List<Student>));
             //MemoryStream msObj = new MemoryStream();
