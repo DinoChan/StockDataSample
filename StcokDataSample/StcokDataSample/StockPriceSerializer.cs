@@ -40,5 +40,10 @@ namespace StcokDataSample
 
         public abstract Stream Serialize(List<StockPrice> instance);
 
+
+        public abstract List<StockPriceSlim> DeserializeSlim(Stream source);
+
+        public abstract Stream SerializeSlim(List<StockPriceSlim> instance);
+
     }
 }
