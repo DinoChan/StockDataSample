@@ -18,9 +18,10 @@ namespace StcokDataSample
             Time("", 1, () => { });
         }
 
-        public static void Time(string name, int iteration, Action action)
+        public static double Time(string name, int iteration, Action action)
         {
-            if (String.IsNullOrEmpty(name)) return;
+            if (String.IsNullOrEmpty(name))
+                return 0;
 
             // 1.
             ConsoleColor currentForeColor = Console.ForegroundColor;
@@ -49,13 +50,14 @@ namespace StcokDataSample
             Console.WriteLine("\tCPU Cycles:\t" + cpuCycles.ToString("N0"));
 
             // 5.
-            for (int i = 0; i <= GC.MaxGeneration; i++)
-            {
-                int count = GC.CollectionCount(i) - gcCounts[i];
-                Console.WriteLine("\tGen " + i + ": \t\t" + count);
-            }
+            //for (int i = 0; i <= GC.MaxGeneration; i++)
+            //{
+            //    int count = GC.CollectionCount(i) - gcCounts[i];
+            //    Console.WriteLine("\tGen " + i + ": \t\t" + count);
+            //}
 
             Console.WriteLine();
+            return watch.ElapsedMilliseconds;
         }
 
         private static ulong GetCycleCount()
