@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 
+
 namespace StcokDataSample
 {
     public class CustomSerializer : StockPriceSerializer
     {
-        public readonly DateTime FirstDate = new DateTime(2003, 01, 02);
 
         public override List<StockPrice> Deserialize(Stream source)
         {
@@ -31,7 +31,7 @@ namespace StcokDataSample
                 var bytes = new byte[sizeof(short)];
                 source.Read(bytes, 0, sizeof(short));
                 var days = BitConverter.ToInt16(bytes, 0);
-                price.Date = FirstDate.AddDays(days);
+                price.DaysFrom1970 =days;
                 index += bytes.Length;
 
                 bytes = new byte[sizeof(float)];
@@ -83,8 +83,7 @@ namespace StcokDataSample
             var index = 0;
             foreach (var item in instance)
             {
-                var days = (short) Math.Floor((item.Date - FirstDate).TotalDays);
-                var bytes = BitConverter.GetBytes(days);
+                var bytes = BitConverter.GetBytes(item.DaysFrom1970);
                 stream.Write(bytes, 0, bytes.Length);
                 index += bytes.Length;
 

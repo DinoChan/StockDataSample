@@ -14,18 +14,16 @@ namespace StcokDataSample
     {
         static void Main(string[] args)
         {
-           
-
             CodeTimer.Initialize();
             var testResults = new List<TestResult>();
             var prices = StockPriceHelper.LoadStockPrices();
 
             var serializers = new List<StockPriceSerializer>();
-            serializers.Add(new BinaryStockPriceSerializer());
-            serializers.Add(new SoapStockPriceSerializer());
-            serializers.Add(new ProtobufStockPriceSerializer());
-            serializers.Add(new JsonStockPriceSerializer());
-            serializers.Add(new XmlStockPriceSerializer());
+            //serializers.Add(new BinaryStockPriceSerializer());
+            //serializers.Add(new SoapStockPriceSerializer());
+            //serializers.Add(new ProtobufStockPriceSerializer());
+            //serializers.Add(new JsonStockPriceSerializer());
+            //serializers.Add(new XmlStockPriceSerializer());
             
             foreach (var serializer in serializers)
             {
@@ -75,7 +73,9 @@ namespace StcokDataSample
             Console.Write(result);
             testResults = new List<TestResult>();
             var pricesSlim = StockPriceHelper.LoadStockPricesSlim();
-            serializers.Add(new CustomSerializer());
+            //serializers.Add(new CustomSerializer());
+            serializers.Add(new ReflectionSerializer());
+            serializers.Add(new ReflectionSerializer());
             foreach (var serializer in serializers)
             {
                 var testResult = new TestResult();

@@ -12,7 +12,7 @@ namespace StcokDataSample
     [Serializable]
     [ProtoContract]
     [DataContract]
-    public struct StockPrice
+    public class StockPrice
     {
         [ProtoMember(1)]
         [DataMember]

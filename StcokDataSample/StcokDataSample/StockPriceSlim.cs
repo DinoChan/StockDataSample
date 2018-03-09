@@ -14,38 +14,47 @@ namespace StcokDataSample
     [DataContract]
     public class StockPriceSlim
     {
+        private static DateTime _beginDate = new DateTime(1970, 1, 1);
+
         [ProtoMember(1)]
         [DataMember]
-        public virtual float ClosePrice { get; set; }
+        public  float ClosePrice { get; set; }
+
+
+
+        public  DateTime Date {
+            get => _beginDate.AddDays(DaysFrom1970);
+            set => DaysFrom1970 = (short) Math.Floor((value - _beginDate).TotalDays);
+        }
+
 
         [ProtoMember(2)]
         [DataMember]
-        public virtual DateTime Date { get; set; }
+        public short DaysFrom1970 { get; set; }
 
         [ProtoMember(3)]
         [DataMember]
-        public virtual float HighPrice { get; set; }
+        public  float HighPrice { get; set; }
 
         [ProtoMember(4)]
         [DataMember]
-        public virtual float LowPrice { get; set; }
+        public  float LowPrice { get; set; }
 
         [ProtoMember(5)]
         [DataMember]
-        public virtual float OpenPrice { get; set; }
+        public  float OpenPrice { get; set; }
 
         [ProtoMember(6)]
         [DataMember]
-        public virtual float PrvClosePrice { get; set; }
+        public  float PrvClosePrice { get; set; }
 
         [ProtoMember(8)]
         [DataMember]
-        public virtual double Turnover { get; set; }
+        public  double Turnover { get; set; }
 
         [ProtoMember(9)]
         [DataMember]
-        public virtual int Volume { get; set; }
-
-       
+        public  int Volume { get; set; }
+        
     }
 }
