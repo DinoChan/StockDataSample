@@ -1,133 +1,120 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 
 namespace StcokDataSample
 {
-    internal class Program
-    {
-        private static void Main(string[] args)
-        {
-            CodeTimer.Initialize();
-            var testResults = new List<TestResult>();
-            var prices = StockPriceHelper.LoadStockPrices();
+	internal class Program
+	{
+		private static void Main(string[] args)
+		{
+			CodeTimer.Initialize();
+			var testResults = new List<TestResult>();
+			var prices = StockPriceHelper.LoadStockPrices();
 
-            var serializers = new List<StockPriceSerializer>();
-            //serializers.Add(new BinaryStockPriceSerializer());
-            //serializers.Add(new SoapStockPriceSerializer());
-            //serializers.Add(new ProtobufStockPriceSerializer());
-            //serializers.Add(new JsonStockPriceSerializer());
-            //serializers.Add(new XmlStockPriceSerializer());
+			var serializers = new List<StockPriceSerializer>();
+			serializers.Add(new BinarySerializer());
+			serializers.Add(new SoapSerializer());
+			serializers.Add(new XmlSerializer());
+			serializers.Add(new JsonSerializer());
+			serializers.Add(new ProtobufSerializer());
 
-            foreach (var serializer in serializers)
-            {
-                var testResult = new TestResult();
-                Console.WriteLine(serializer.GetType().Name);
-                testResult.Name = serializer.GetType().Name;
-                Stream stream = null;
-                testResult.SerializeElapsedMilliseconds = CodeTimer.Time("Serialize: ", 1, () => { stream = serializer.Serialize(prices); });
+			foreach (var serializer in serializers)
+			{
+				var testResult = new TestResult {Name = serializer.GetType().Name};
+				Console.WriteLine(testResult.Name);
+				byte[] bytes = null;
+				testResult.SerializeElapsedMilliseconds = CodeTimer.Time("Serialize: ", 1, () => { bytes = serializer.Serialize(prices); });
 
-                testResult.DeserializeElapsedMilliseconds = CodeTimer.Time("Deserialize: ", 1, () =>
-                {
-                    var newObject = serializer.Deserialize(stream);
-                    Debug.Assert(newObject.Count == prices.Count);
-                    Debug.Assert(newObject[prices.Count - 1].PrvClosePrice == prices[newObject.Count - 1].PrvClosePrice);
-                    Debug.Assert(newObject[prices.Count - 1].Date == prices[newObject.Count - 1].Date);
-                });
+				testResult.DeserializeElapsedMilliseconds = CodeTimer.Time("Deserialize: ", 1, () =>
+				{
+					var newObject = serializer.Deserialize(bytes);
+					Debug.Assert(newObject.Count == prices.Count);
+					Debug.Assert(newObject[prices.Count - 1].PrvClosePrice == prices[newObject.Count - 1].PrvClosePrice);
+					Debug.Assert(newObject[prices.Count - 1].Date == prices[newObject.Count - 1].Date);
+				});
 
-                Console.WriteLine("Stream Length: " + stream.Length.ToString("N2"));
+				Console.WriteLine("Stream Length: " + bytes.Length.ToString("N2"));
+				testResult.Bytes = bytes.Length;
+				testResults.Add(testResult);
+				Console.WriteLine();
+			}
 
-                //CodeTimer.Time("Serialize: ", 1, () =>
-                //{
-                //    stream = serializer.SerializeWith7Z(prices);
-                //});
-
-                //CodeTimer.Time("Deserialize: ", 1, () =>
-                //{
-                //    var newObject = serializer.DeserializeWith7Z(stream);
-                //    Debug.Assert(newObject.Count == prices.Count);
-                //    Debug.Assert(newObject[prices.Count - 1].PrvClosePrice == prices[newObject.Count - 1].PrvClosePrice);
-                //});
-
-                Console.WriteLine("Stream Length: " + stream.Length.ToString("N2"));
-                testResult.Bytes = stream.Length;
-                testResults.Add(testResult);
-                Console.WriteLine();
-            }
-
-            var result = "Name\tSerialize(ms)\tDeserialize(ms)\tBytes" + Environment.NewLine;
-            foreach (var testResult in testResults)
-            {
-                result += $"{testResult.Name}\t{testResult.SerializeElapsedMilliseconds}\t{testResult.DeserializeElapsedMilliseconds}\t{testResult.Bytes:N2}";
-                result += Environment.NewLine;
-            }
-            Console.Write(result);
-            testResults = new List<TestResult>();
-            var pricesSlim = StockPriceHelper.LoadStockPricesSlim();
-            //serializers.Add(new CustomSerializer());
-            serializers.Add(new ReflectionSerializer());
-            serializers.Add(new ReflectionSerializer());
-            foreach (var serializer in serializers)
-            {
-                var testResult = new TestResult();
-                Console.WriteLine(serializer.GetType().Name);
-                testResult.Name = serializer.GetType().Name;
-                Stream stream = null;
-                testResult.SerializeElapsedMilliseconds = CodeTimer.Time("Serialize: ", 1, () => { stream = serializer.SerializeSlim(pricesSlim); });
-
-                testResult.DeserializeElapsedMilliseconds = CodeTimer.Time("Deserialize: ", 1, () =>
-                {
-                    var newObject = serializer.DeserializeSlim(stream);
-                    Debug.Assert(newObject.Count == pricesSlim.Count);
-                    Debug.Assert(newObject[pricesSlim.Count - 1].PrvClosePrice == pricesSlim[newObject.Count - 1].PrvClosePrice);
-                    Debug.Assert(newObject[prices.Count - 1].Date == prices[newObject.Count - 1].Date);
-                });
-
-                Console.WriteLine("Stream Length: " + stream.Length.ToString("N2"));
-
-                //CodeTimer.Time("Serialize: ", 1, () =>
-                //{
-                //    stream = serializer.SerializeWith7Z(prices);
-                //});
-
-                //CodeTimer.Time("Deserialize: ", 1, () =>
-                //{
-                //    var newObject = serializer.DeserializeWith7Z(stream);
-                //    Debug.Assert(newObject.Count == prices.Count);
-                //    Debug.Assert(newObject[prices.Count - 1].PrvClosePrice == prices[newObject.Count - 1].PrvClosePrice);
-                //});
-
-                Console.WriteLine("Stream Length: " + stream.Length.ToString("N2"));
-                testResult.Bytes = stream.Length;
-                testResults.Add(testResult);
-                Console.WriteLine();
-            }
-
-            result = "Name\tSerialize(ms)\tDeserialize(ms)\tBytes" + Environment.NewLine;
-            foreach (var testResult in testResults)
-            {
-                result += $"{testResult.Name}\t{testResult.SerializeElapsedMilliseconds}\t{testResult.DeserializeElapsedMilliseconds}\t{testResult.Bytes:N2}";
-                result += Environment.NewLine;
-            }
-            Console.Write(result);
-            Console.ReadLine();
-        }
-    }
+			var result = "Name\tSerialize(ms)\tDeserialize(ms)\tBytes" + Environment.NewLine;
+			foreach (var testResult in testResults)
+			{
+				result += $"{testResult.Name}\t{testResult.SerializeElapsedMilliseconds}\t{testResult.DeserializeElapsedMilliseconds}\t{testResult.Bytes:N2}";
+				result += Environment.NewLine;
+			}
+			Console.Write(result);
 
 
-    public class TestResult
-    {
-        public string Name { get; set; }
+			testResults = new List<TestResult>();
+			var pricesSlim = StockPriceHelper.LoadStockPricesSlim();
+			serializers.Add(new CustomSerializer());
+			serializers.Add(new ReflectionSerializer());
+			serializers.Add(new ExtendReflectionSerializer());
+			foreach (var serializer in serializers)
+			{
+				var testResult = new TestResult {Name = serializer.GetType().Name};
+				Console.WriteLine(testResult.Name);
+				byte[] bytes = null;
 
-        public double SerializeElapsedMilliseconds { get; set; }
+				testResult.SerializeElapsedMilliseconds = CodeTimer.Time("Serialize: ", 1, () => { bytes = serializer.SerializeSlim(pricesSlim); });
 
-        public double DeserializeElapsedMilliseconds { get; set; }
+				testResult.DeserializeElapsedMilliseconds = CodeTimer.Time("Deserialize: ", 1, () =>
+				{
+					var newObject = serializer.DeserializeSlim(bytes);
+					Debug.Assert(newObject.Count == pricesSlim.Count);
+					Debug.Assert(newObject[pricesSlim.Count - 1].PrvClosePrice == pricesSlim[newObject.Count - 1].PrvClosePrice);
+					Debug.Assert(newObject[prices.Count - 1].Date == prices[newObject.Count - 1].Date);
+				});
 
-        public double SerializeWith7ZElapsedMilliseconds { get; set; }
+				Console.WriteLine("Length: " + bytes.Length.ToString("N2"));
+				testResult.Bytes = bytes.Length;
+				testResult.SerializeWithZipElapsedMilliseconds = CodeTimer.Time("Serialize With Zip: ", 1, () => { bytes = serializer.SerializeWithZip(pricesSlim); });
 
-        public double DeserializeWith7ZElapsedMilliseconds { get; set; }
+				testResult.DeserializeWithZipElapsedMilliseconds = CodeTimer.Time("Deserialize With Zip: ", 1, () =>
+				{
+					var newObject = serializer.DeserializeWithZip(bytes);
+					Debug.Assert(newObject.Count == pricesSlim.Count);
+					Debug.Assert(newObject[pricesSlim.Count - 1].PrvClosePrice == pricesSlim[newObject.Count - 1].PrvClosePrice);
+					Debug.Assert(newObject[prices.Count - 1].Date == prices[newObject.Count - 1].Date);
+				});
 
-        public double Bytes { get; set; }
-    }
+				Console.WriteLine("Length: " + bytes.Length.ToString("N2"));
+				testResult.BytesWithZip = bytes.Length;
+
+				testResults.Add(testResult);
+				Console.WriteLine();
+			}
+
+			result = "Name\tSerialize(ms)\tDeserialize(ms)\tBytes\tSerialize With Zip(ms)\tDeserialize With Zip(ms)\tBytes With Zip" + Environment.NewLine;
+			foreach (var testResult in testResults)
+			{
+				result += $"{testResult.Name}\t{testResult.SerializeElapsedMilliseconds}\t{testResult.DeserializeElapsedMilliseconds}\t{testResult.Bytes:N2}\t{testResult.SerializeWithZipElapsedMilliseconds}\t{testResult.DeserializeWithZipElapsedMilliseconds}\t{testResult.BytesWithZip:N2}";
+				result += Environment.NewLine;
+			}
+			Console.Write(result);
+			Console.ReadLine();
+		}
+	}
+
+
+	public class TestResult
+	{
+		public string Name { get; set; }
+
+		public double SerializeElapsedMilliseconds { get; set; }
+
+		public double DeserializeElapsedMilliseconds { get; set; }
+
+		public double SerializeWithZipElapsedMilliseconds { get; set; }
+
+		public double DeserializeWithZipElapsedMilliseconds { get; set; }
+
+		public double Bytes { get; set; }
+
+		public double BytesWithZip { get; set; }
+	}
 }

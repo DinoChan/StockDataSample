@@ -126,6 +126,7 @@
     <Compile Include="BinarySerializer.cs" />
     <Compile Include="CodeTimer.cs" />
     <Compile Include="CustomSerializer.cs" />
+    <Compile Include="ExtendReflectionSerializer.cs" />
     <Compile Include="ReflectionSerializer.cs" />
     <Compile Include="SoapSerializer.cs" />
     <Compile Include="StockPriceSlim.cs" />

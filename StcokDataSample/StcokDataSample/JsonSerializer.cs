@@ -4,39 +4,47 @@ using System.Runtime.Serialization.Json;
 
 namespace StcokDataSample
 {
-    public class JsonSerializer : StockPriceSerializer
-    {
-        public override List<StockPrice> Deserialize(Stream source)
-        {
-            source.Seek(0, SeekOrigin.Begin);
-            var serializer = new DataContractJsonSerializer(typeof(List<StockPrice>));
-            var target = serializer.ReadObject(source);
-            return target as List<StockPrice>;
-        }
+	public class JsonSerializer : StockPriceSerializer
+	{
+		public override List<StockPrice> Deserialize(byte[] source)
+		{
+			using (var stream = new MemoryStream(source))
+			{
+				var serializer = new DataContractJsonSerializer(typeof(List<StockPrice>));
+				var target = serializer.ReadObject(stream);
+				return target as List<StockPrice>;
+			}
+		}
 
-        public override Stream Serialize(List<StockPrice> instance)
-        {
-            var stream = new MemoryStream();
-            var serializer = new DataContractJsonSerializer(typeof(List<StockPrice>));
-            serializer.WriteObject(stream, instance);
-            return stream;
-        }
+		public override byte[] Serialize(List<StockPrice> instance)
+		{
+			using (var stream = new MemoryStream())
+			{
+				var serializer = new DataContractJsonSerializer(typeof(List<StockPrice>));
+				serializer.WriteObject(stream, instance);
+				return stream.ToArray();
+			}
+		}
 
 
-        public override List<StockPriceSlim> DeserializeSlim(Stream source)
-        {
-            source.Seek(0, SeekOrigin.Begin);
-            var serializer = new DataContractJsonSerializer(typeof(List<StockPriceSlim>));
-            var target = serializer.ReadObject(source);
-            return target as List<StockPriceSlim>;
-        }
+		public override List<StockPriceSlim> DeserializeSlim(byte[] source)
+		{
+			using (var stream = new MemoryStream(source))
+			{
+				var serializer = new DataContractJsonSerializer(typeof(List<StockPriceSlim>));
+				var target = serializer.ReadObject(stream);
+				return target as List<StockPriceSlim>;
+			}
+		}
 
-        public override Stream SerializeSlim(List<StockPriceSlim> instance)
-        {
-            var stream = new MemoryStream();
-            var serializer = new DataContractJsonSerializer(typeof(List<StockPriceSlim>));
-            serializer.WriteObject(stream, instance);
-            return stream;
-        }
-    }
+		public override byte[] SerializeSlim(List<StockPriceSlim> instance)
+		{
+			using (var stream = new MemoryStream())
+			{
+				var serializer = new DataContractJsonSerializer(typeof(List<StockPriceSlim>));
+				serializer.WriteObject(stream, instance);
+				return stream.ToArray();
+			}
+		}
+	}
 }

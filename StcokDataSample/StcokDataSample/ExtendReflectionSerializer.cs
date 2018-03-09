@@ -1,13 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 
 namespace StcokDataSample
 {
-	public class ReflectionSerializer : StockPriceSerializer
+	public class ExtendReflectionSerializer : StockPriceSerializer
 	{
+		private readonly IEnumerable<PropertyInfo> _properties;
+
+
+		public ExtendReflectionSerializer()
+		{
+			_properties = typeof(StockPriceSlim).GetProperties().Where(p => p.GetCustomAttribute(typeof(DataMemberAttribute)) != null).ToList();
+		}
+
 		public override List<StockPrice> Deserialize(byte[] source)
 		{
 			throw new NotImplementedException();
@@ -28,11 +37,8 @@ namespace StcokDataSample
 				while (index < source.Length)
 				{
 					var price = new StockPriceSlim();
-					foreach (var property in typeof(StockPriceSlim).GetProperties())
+					foreach (var property in _properties)
 					{
-						if (property.GetCustomAttribute(typeof(DataMemberAttribute)) == null)
-							continue;
-
 						byte[] bytes = null;
 						object value = null;
 
@@ -65,7 +71,6 @@ namespace StcokDataSample
 						index += bytes.Length;
 					}
 
-
 					result.Add(price);
 				}
 				return result;
@@ -76,11 +81,8 @@ namespace StcokDataSample
 		{
 			var result = new List<byte>();
 			foreach (var item in instance)
-			foreach (var property in typeof(StockPriceSlim).GetProperties())
+			foreach (var property in _properties)
 			{
-				if (property.GetCustomAttribute(typeof(DataMemberAttribute)) == null)
-					continue;
-
 				var value = property.GetValue(item);
 				byte[] bytes = null;
 				if (property.PropertyType == typeof(int))
@@ -91,6 +93,7 @@ namespace StcokDataSample
 					bytes = BitConverter.GetBytes((float) value);
 				else if (property.PropertyType == typeof(double))
 					bytes = BitConverter.GetBytes((double) value);
+
 				result.AddRange(bytes);
 			}
 

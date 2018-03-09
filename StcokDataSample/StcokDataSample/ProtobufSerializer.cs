@@ -4,32 +4,40 @@ using ProtoBuf;
 
 namespace StcokDataSample
 {
-    public class ProtobufSerializer : StockPriceSerializer
-    {
-        public override List<StockPrice> Deserialize(Stream source)
-        {
-            source.Seek(0, SeekOrigin.Begin);
-            return Serializer.Deserialize<List<StockPrice>>(source);
-        }
+	public class ProtobufSerializer : StockPriceSerializer
+	{
+		public override List<StockPrice> Deserialize(byte[] source)
+		{
+			using (var stream = new MemoryStream(source))
+			{
+				return Serializer.Deserialize<List<StockPrice>>(stream);
+			}
+		}
 
-        public override Stream Serialize(List<StockPrice> instance)
-        {
-            var stream = new MemoryStream();
-            Serializer.Serialize(stream, instance);
-            return stream;
-        }
+		public override byte[] Serialize(List<StockPrice> instance)
+		{
+			using (var stream = new MemoryStream())
+			{
+				Serializer.Serialize(stream, instance);
+				return stream.ToArray();
+			}
+		}
 
-        public override List<StockPriceSlim> DeserializeSlim(Stream source)
-        {
-            source.Seek(0, SeekOrigin.Begin);
-            return Serializer.Deserialize<List<StockPriceSlim>>(source);
-        }
+		public override List<StockPriceSlim> DeserializeSlim(byte[] source)
+		{
+			using (var stream = new MemoryStream(source))
+			{
+				return Serializer.Deserialize<List<StockPriceSlim>>(stream);
+			}
+		}
 
-        public override Stream SerializeSlim(List<StockPriceSlim> instance)
-        {
-            var stream = new MemoryStream();
-            Serializer.Serialize(stream, instance);
-            return stream;
-        }
-    }
+		public override byte[] SerializeSlim(List<StockPriceSlim> instance)
+		{
+			using (var stream = new MemoryStream())
+			{
+				Serializer.Serialize(stream, instance);
+				return stream.ToArray();
+			}
+		}
+	}
 }

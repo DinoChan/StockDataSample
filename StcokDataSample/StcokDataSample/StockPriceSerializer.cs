@@ -1,44 +1,51 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 
 namespace StcokDataSample
 {
-    public abstract class StockPriceSerializer
-    {
-        //public StockPriceSerializer()
-        //{
-        //    SevenZip.SevenZipBase.SetLibraryPath(Environment.CurrentDirectory + "\\7z.dll");
-        //}
-
-        //public List<StockPrice> DeserializeWith7Z(Stream source)
-        //{
-        //    SevenZip.SevenZipExtractor extractor = new SevenZip.SevenZipExtractor(source);
-        //    var stream = new MemoryStream();
-        //    extractor.ExtractFile(0, stream);
-        //    stream.Seek(0, SeekOrigin.Begin);
-        //    return Deserialize(stream);
-        //}
-
-
-        //public Stream SerializeWith7Z(List<StockPrice> instance)
-        //{
-        //    var stream = Serialize(instance);
-        //    stream.Seek(0, SeekOrigin.Begin);
-        //    SevenZip.SevenZipCompressor compressor = new SevenZip.SevenZipCompressor();
-        //    compressor.CompressionMethod = SevenZip.CompressionMethod.Lzma2;
-        //    compressor.CompressionLevel = SevenZip.CompressionLevel.Normal;
-        //    var outputStream = new MemoryStream();
-        //    compressor.CompressStream(stream, outputStream);
-        //    return outputStream;
-        //}
-
-        public abstract List<StockPrice> Deserialize(Stream source);
-
-        public abstract Stream Serialize(List<StockPrice> instance);
+	public abstract class StockPriceSerializer
+	{
+		public List<StockPriceSlim> DeserializeWithZip(byte[] source)
+		{
+			using (var originalFileStream = new MemoryStream(source))
+			{
+				using (var memoryStream = new MemoryStream())
+				{
+					using (var decompressionStream = new DeflateStream(originalFileStream, CompressionMode.Decompress))
+					{
+						decompressionStream.CopyTo(memoryStream);
+						//byte[] bytes = new byte[decompressionStream.Length];
+						//decompressionStream.Write(bytes, 0, bytes.Length);
+					}
+					var bytes = memoryStream.ToArray();
+					return DeserializeSlim(bytes);
+				}
+			}
+		}
 
 
-        public abstract List<StockPriceSlim> DeserializeSlim(Stream source);
+		public byte[] SerializeWithZip(List<StockPriceSlim> instance)
+		{
+			var bytes = SerializeSlim(instance);
 
-        public abstract Stream SerializeSlim(List<StockPriceSlim> instance);
-    }
+			using (var memoryStream = new MemoryStream())
+			{
+				using (var deflateStream = new DeflateStream(memoryStream, CompressionLevel.Fastest))
+				{
+					deflateStream.Write(bytes, 0, bytes.Length);
+				}
+				return memoryStream.ToArray();
+			}
+		}
+
+		public abstract List<StockPrice> Deserialize(byte[] source);
+
+		public abstract byte[] Serialize(List<StockPrice> instance);
+
+
+		public abstract List<StockPriceSlim> DeserializeSlim(byte[] source);
+
+		public abstract byte[] SerializeSlim(List<StockPriceSlim> instance);
+	}
 }
