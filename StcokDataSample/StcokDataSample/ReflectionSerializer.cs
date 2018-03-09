@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Reflection;
 using System.Runtime.Serialization;
 
@@ -11,7 +8,6 @@ namespace StcokDataSample
 {
     public class ReflectionSerializer : StockPriceSerializer
     {
-
         public override List<StockPrice> Deserialize(Stream source)
         {
             throw new NotImplementedException();
@@ -32,14 +28,14 @@ namespace StcokDataSample
             while (index < source.Length)
             {
                 var price = new StockPriceSlim();
-                foreach (var property in typeof(StockPriceSlim).GetProperties( ))
+                foreach (var property in typeof(StockPriceSlim).GetProperties())
                 {
                     if (property.GetCustomAttribute(typeof(DataMemberAttribute)) == null)
                         continue;
 
                     byte[] bytes = null;
                     object value = null;
-                    
+
                     if (property.PropertyType == typeof(int))
                     {
                         bytes = new byte[sizeof(int)];
@@ -57,7 +53,6 @@ namespace StcokDataSample
                         bytes = new byte[sizeof(float)];
                         source.Read(bytes, 0, bytes.Length);
                         value = BitConverter.ToSingle(bytes, 0);
-
                     }
                     else if (property.PropertyType == typeof(double))
                     {
@@ -71,7 +66,6 @@ namespace StcokDataSample
                 }
 
 
-
                 result.Add(price);
             }
             return result;
@@ -82,34 +76,23 @@ namespace StcokDataSample
             var stream = new MemoryStream();
             var index = 0;
             foreach (var item in instance)
+            foreach (var property in typeof(StockPriceSlim).GetProperties())
             {
-                foreach (var property in typeof(StockPriceSlim).GetProperties())
-                {
-                    if (property.GetCustomAttribute(typeof(DataMemberAttribute)) == null)
-                        continue;
+                if (property.GetCustomAttribute(typeof(DataMemberAttribute)) == null)
+                    continue;
 
-                    var value = property.GetValue(item);
-                    byte[] bytes = null;
-                    if (property.PropertyType == typeof(int))
-                    {
-                        bytes = BitConverter.GetBytes((int)value);
-                    }
-                    else if (property.PropertyType == typeof(short))
-                    {
-                        bytes = BitConverter.GetBytes((short)value);
-                    }
-                    else if (property.PropertyType == typeof(float))
-                    {
-                        bytes = BitConverter.GetBytes((float)value);
-
-                    }
-                    else if (property.PropertyType == typeof(double))
-                    {
-                        bytes = BitConverter.GetBytes((double)value);
-                    }
-                    stream.Write(bytes, 0, bytes.Length);
-                    index += bytes.Length;
-                }
+                var value = property.GetValue(item);
+                byte[] bytes = null;
+                if (property.PropertyType == typeof(int))
+                    bytes = BitConverter.GetBytes((int) value);
+                else if (property.PropertyType == typeof(short))
+                    bytes = BitConverter.GetBytes((short) value);
+                else if (property.PropertyType == typeof(float))
+                    bytes = BitConverter.GetBytes((float) value);
+                else if (property.PropertyType == typeof(double))
+                    bytes = BitConverter.GetBytes((double) value);
+                stream.Write(bytes, 0, bytes.Length);
+                index += bytes.Length;
             }
 
             return stream;

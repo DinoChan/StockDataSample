@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ProtoBuf;
 
 namespace StcokDataSample
 {
-    public class ProtobufStockPriceSerializer : StockPriceSerializer
+    public class ProtobufSerializer : StockPriceSerializer
     {
         public override List<StockPrice> Deserialize(Stream source)
         {

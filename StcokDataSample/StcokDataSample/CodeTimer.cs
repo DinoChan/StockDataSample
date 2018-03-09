@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace StcokDataSample
 {
@@ -20,28 +16,26 @@ namespace StcokDataSample
 
         public static double Time(string name, int iteration, Action action)
         {
-            if (String.IsNullOrEmpty(name))
+            if (string.IsNullOrEmpty(name))
                 return 0;
 
             // 1.
-            ConsoleColor currentForeColor = Console.ForegroundColor;
+            var currentForeColor = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine(name);
 
             // 2.
             GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
-            int[] gcCounts = new int[GC.MaxGeneration + 1];
-            for (int i = 0; i <= GC.MaxGeneration; i++)
-            {
+            var gcCounts = new int[GC.MaxGeneration + 1];
+            for (var i = 0; i <= GC.MaxGeneration; i++)
                 gcCounts[i] = GC.CollectionCount(i);
-            }
 
             // 3.
-            Stopwatch watch = new Stopwatch();
+            var watch = new Stopwatch();
             watch.Start();
-            ulong cycleCount = GetCycleCount();
-            for (int i = 0; i < iteration; i++) action();
-            ulong cpuCycles = GetCycleCount() - cycleCount;
+            var cycleCount = GetCycleCount();
+            for (var i = 0; i < iteration; i++) action();
+            var cpuCycles = GetCycleCount() - cycleCount;
             watch.Stop();
 
             // 4.
@@ -69,9 +63,9 @@ namespace StcokDataSample
 
         [DllImport("kernel32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
-        static extern bool QueryThreadCycleTime(IntPtr threadHandle, ref ulong cycleTime);
+        private static extern bool QueryThreadCycleTime(IntPtr threadHandle, ref ulong cycleTime);
 
         [DllImport("kernel32.dll")]
-        static extern IntPtr GetCurrentThread();
+        private static extern IntPtr GetCurrentThread();
     }
 }

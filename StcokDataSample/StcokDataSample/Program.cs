@@ -2,17 +2,12 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Json;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StcokDataSample
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             CodeTimer.Initialize();
             var testResults = new List<TestResult>();
@@ -24,17 +19,14 @@ namespace StcokDataSample
             //serializers.Add(new ProtobufStockPriceSerializer());
             //serializers.Add(new JsonStockPriceSerializer());
             //serializers.Add(new XmlStockPriceSerializer());
-            
+
             foreach (var serializer in serializers)
             {
                 var testResult = new TestResult();
                 Console.WriteLine(serializer.GetType().Name);
                 testResult.Name = serializer.GetType().Name;
                 Stream stream = null;
-             testResult.SerializeElapsedMilliseconds=   CodeTimer.Time("Serialize: ", 1, () =>
-                 {
-                     stream = serializer.Serialize(prices);
-                 });
+                testResult.SerializeElapsedMilliseconds = CodeTimer.Time("Serialize: ", 1, () => { stream = serializer.Serialize(prices); });
 
                 testResult.DeserializeElapsedMilliseconds = CodeTimer.Time("Deserialize: ", 1, () =>
                 {
@@ -82,10 +74,7 @@ namespace StcokDataSample
                 Console.WriteLine(serializer.GetType().Name);
                 testResult.Name = serializer.GetType().Name;
                 Stream stream = null;
-                testResult.SerializeElapsedMilliseconds = CodeTimer.Time("Serialize: ", 1, () =>
-                {
-                    stream = serializer.SerializeSlim(pricesSlim);
-                });
+                testResult.SerializeElapsedMilliseconds = CodeTimer.Time("Serialize: ", 1, () => { stream = serializer.SerializeSlim(pricesSlim); });
 
                 testResult.DeserializeElapsedMilliseconds = CodeTimer.Time("Deserialize: ", 1, () =>
                 {

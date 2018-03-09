@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.Serialization.Json;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StcokDataSample
 {
-    public class JsonStockPriceSerializer : StockPriceSerializer
+    public class JsonSerializer : StockPriceSerializer
     {
         public override List<StockPrice> Deserialize(Stream source)
         {

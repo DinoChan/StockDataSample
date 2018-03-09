@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 
-
 namespace StcokDataSample
 {
     public class CustomSerializer : StockPriceSerializer
     {
-
         public override List<StockPrice> Deserialize(Stream source)
         {
             throw new NotImplementedException();
@@ -31,7 +29,7 @@ namespace StcokDataSample
                 var bytes = new byte[sizeof(short)];
                 source.Read(bytes, 0, sizeof(short));
                 var days = BitConverter.ToInt16(bytes, 0);
-                price.DaysFrom1970 =days;
+                price.DaysFrom1970 = days;
                 index += bytes.Length;
 
                 bytes = new byte[sizeof(float)];

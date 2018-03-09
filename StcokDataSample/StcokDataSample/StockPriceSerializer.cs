@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace StcokDataSample
 {
@@ -44,6 +40,5 @@ namespace StcokDataSample
         public abstract List<StockPriceSlim> DeserializeSlim(Stream source);
 
         public abstract Stream SerializeSlim(List<StockPriceSlim> instance);
-
     }
 }
