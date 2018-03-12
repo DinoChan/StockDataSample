@@ -49,6 +49,6 @@ namespace StcokDataSample
 
 		[ProtoMember(9)]
 		[DataMember]
-		public int Volume { get; set; }
+		public double Volume { get; set; }
 	}
 }

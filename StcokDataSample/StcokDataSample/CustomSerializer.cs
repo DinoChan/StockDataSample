@@ -57,9 +57,9 @@ namespace StcokDataSample
 					price.PrvClosePrice = value;
 					index += bytes.Length;
 
-					bytes = new byte[sizeof(int)];
-					stream.Read(bytes, 0, sizeof(int));
-					var volume = BitConverter.ToInt32(bytes, 0);
+					bytes = new byte[sizeof(double)];
+					stream.Read(bytes, 0, sizeof(double));
+					var volume = BitConverter.ToDouble(bytes, 0);
 					price.Volume = volume;
 					index += bytes.Length;
 

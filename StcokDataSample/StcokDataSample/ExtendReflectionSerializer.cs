@@ -79,25 +79,59 @@ namespace StcokDataSample
 
 		public override byte[] SerializeSlim(List<StockPriceSlim> instance)
 		{
-			var result = new List<byte>();
-			foreach (var item in instance)
-			foreach (var property in _properties)
-			{
-				var value = property.GetValue(item);
-				byte[] bytes = null;
-				if (property.PropertyType == typeof(int))
-					bytes = BitConverter.GetBytes((int) value);
-				else if (property.PropertyType == typeof(short))
-					bytes = BitConverter.GetBytes((short) value);
-				else if (property.PropertyType == typeof(float))
-					bytes = BitConverter.GetBytes((float) value);
-				else if (property.PropertyType == typeof(double))
-					bytes = BitConverter.GetBytes((double) value);
+		    var result = new byte[GetLength(instance)];
+		    int startIndex = 0;
+		    foreach (var item in instance)
+		    {
+		        foreach (var property in _properties)
+		        {
+		            var value = property.GetValue(item);
+		            byte[] bytes = null;
+		            if (property.PropertyType == typeof(int))
+		                bytes = BitConverter.GetBytes((int) value);
+		            else if (property.PropertyType == typeof(short))
+		                bytes = BitConverter.GetBytes((short) value);
+		            else if (property.PropertyType == typeof(float))
+		                bytes = BitConverter.GetBytes((float) value);
+		            else if (property.PropertyType == typeof(double))
+		                bytes = BitConverter.GetBytes((double) value);
 
-				result.AddRange(bytes);
-			}
-
-			return result.ToArray();
+		            WriteData(result, bytes, startIndex);
+		            startIndex += bytes.Length;
+                }
+		    }
+		    return result;
 		}
-	}
+
+
+	    private int GetLength(List<StockPriceSlim> instance)
+	    {
+	        int length = 0;
+
+	        foreach (var property in typeof(StockPriceSlim).GetProperties())
+	        {
+	            if (property.GetCustomAttribute(typeof(DataMemberAttribute)) == null)
+	                continue;
+
+	            if (property.PropertyType == typeof(int))
+	                length += sizeof(int);
+	            else if (property.PropertyType == typeof(short))
+	                length += sizeof(short);
+	            else if (property.PropertyType == typeof(float))
+	                length += sizeof(float);
+	            else if (property.PropertyType == typeof(double))
+	                length += sizeof(double);
+	        }
+
+	        return length * instance.Count;
+	    }
+
+	    private void WriteData(byte[] source, byte[] newData, int startIndex)
+	    {
+	        for (int i = 0; i < newData.Length; i++)
+	        {
+	            source[i + startIndex] = newData[i];
+	        }
+	    }
+    }
 }
